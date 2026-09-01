@@ -10,12 +10,13 @@
     "create-admin": "node scripts/create-admin.js"
   },
   "dependencies": {
-    "express": "^4.19.2",
-    "socket.io": "^4.7.5",
+    "bcryptjs": "^2.4.3",
     "cors": "^2.8.5",
-    "pg": "^8.11.5",
     "dotenv": "^16.4.5",
+    "express": "^4.19.2",
     "express-session": "^1.18.0",
-    "bcryptjs": "^2.4.3"
+    "pg": "^8.11.5",
+    "socket.io": "^4.7.5",
+    "socket.io-client": "^4.8.3"
   }
 }
