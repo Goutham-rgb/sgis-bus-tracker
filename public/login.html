@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>SSGIS Admin — Login</title>
+<link rel="stylesheet" href="css/style.css">
+<style>
+  body { display: flex; align-items: center; justify-content: center; min-height: 100vh; }
+  .loginCard {
+    background: #fff; border: 1px solid var(--indigo-100); border-radius: 14px;
+    padding: 34px 30px; width: 320px; box-shadow: 0 8px 24px rgba(79,70,229,0.12);
+    text-align: center;
+  }
+  .loginCard h1 { font-size: 1.1rem; color: var(--indigo-900); margin: 14px 0 4px; }
+  .loginCard p.sub { color: #6b7099; font-size: 0.85rem; margin: 0 0 20px; }
+  .loginCard form { flex-direction: column; }
+  .loginCard input { width: 100%; }
+  .loginCard button { width: 100%; margin-top: 4px; }
+  .error { color: #dc2626; font-size: 0.85rem; margin-top: 10px; min-height: 1.2em; }
+  .iconWrap {
+    width: 56px; height: 56px; border-radius: 50%; background: var(--indigo-50);
+    display: flex; align-items: center; justify-content: center; margin: 0 auto;
+  }
+</style>
+</head>
+<body>
+  <div class="loginCard">
+    <div class="iconWrap">
+      <svg width="26" height="26" viewBox="0 0 24 24" fill="none"><rect x="5" y="10" width="14" height="10" rx="2" fill="#4F46E5"/><path d="M8 10V7a4 4 0 0 1 8 0v3" stroke="#4F46E5" stroke-width="2" fill="none"/></svg>
+    </div>
+    <h1>Admin Login</h1>
+    <p class="sub">Shree Swaminarayan Gurukul International School</p>
+    <form id="loginForm">
+      <input name="username" placeholder="Username" required autofocus>
+      <input name="password" type="password" placeholder="Password" required>
+      <button type="submit">Sign in</button>
+    </form>
+    <p class="error" id="errorMsg"></p>
+  </div>
+
+<script>
+document.getElementById('loginForm').onsubmit = async (e) => {
+  e.preventDefault();
+  const data = Object.fromEntries(new FormData(e.target));
+  const res = await fetch('/api/admin/login', {
+    method: 'POST', headers: { 'Content-Type': 'application/json' }, credentials: 'include',
+    body: JSON.stringify(data)
+  });
+  if (res.ok) {
+    window.location.href = 'admin.html';
+  } else {
+    const body = await res.json().catch(() => ({}));
+    document.getElementById('errorMsg').textContent = body.error || 'Login failed';
+  }
+};
+</script>
+</body>
+</html>

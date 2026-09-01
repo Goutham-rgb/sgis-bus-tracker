@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>SSGIS Bus Tracker</title>
+<link rel="stylesheet" href="css/style.css">
+<style>
+  header { padding: 40px 24px 46px; text-align: center; }
+  header .titleRow { justify-content: center; }
+  header h1 { font-size: 1.6rem; }
+
+  main { max-width: 920px; margin-top: -26px; }
+
+  .cardGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 18px;
+  }
+  .appCard {
+    background: #fff;
+    border: 1px solid var(--indigo-100);
+    border-radius: 14px;
+    padding: 26px 22px;
+    text-align: center;
+    text-decoration: none;
+    color: var(--ink);
+    box-shadow: 0 4px 16px rgba(79, 70, 229, 0.08);
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+  }
+  .appCard:hover { transform: translateY(-3px); box-shadow: 0 8px 22px rgba(79, 70, 229, 0.16); }
+  .appCard .iconWrap {
+    width: 64px; height: 64px; border-radius: 50%; background: var(--indigo-50);
+    display: flex; align-items: center; justify-content: center; margin: 0 auto 14px;
+  }
+  .appCard h3 { margin: 0 0 6px; color: var(--indigo-900); font-size: 1.1rem; }
+  .appCard p { margin: 0; color: #6b7099; font-size: 0.85rem; line-height: 1.4; }
+  .appCard .go { display: inline-block; margin-top: 12px; color: var(--indigo-600); font-weight: 700; font-size: 0.85rem; }
+
+  footer { text-align: center; padding: 30px 16px 40px; color: #8890c4; font-size: 0.8rem; }
+</style>
+</head>
+<body>
+  <header>
+    <div class="titleRow">
+      <svg width="46" height="46" viewBox="0 0 48 48" fill="none">
+        <rect x="4" y="10" width="40" height="24" rx="6" fill="#fff" fill-opacity="0.15"/>
+        <rect x="7" y="13" width="34" height="14" rx="3" fill="#fff" fill-opacity="0.9"/>
+        <circle cx="14" cy="36" r="4" fill="#fff"/>
+        <circle cx="34" cy="36" r="4" fill="#fff"/>
+        <rect x="10" y="16" width="7" height="7" rx="1.2" fill="#4338CA"/>
+        <rect x="20.5" y="16" width="7" height="7" rx="1.2" fill="#4338CA"/>
+        <rect x="31" y="16" width="6" height="7" rx="1.2" fill="#4338CA"/>
+      </svg>
+      <div>
+        <h1>Shree Swaminarayan Gurukul International School</h1>
+        <p class="subtitle">Bus Tracker</p>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <div class="cardGrid">
+
+      <a class="appCard" href="admin.html">
+        <div class="iconWrap">
+          <svg width="30" height="30" viewBox="0 0 24 24" fill="none"><rect x="2" y="6" width="20" height="12" rx="3" fill="#4F46E5"/><circle cx="7" cy="19" r="2.2" fill="#312E81"/><circle cx="17" cy="19" r="2.2" fill="#312E81"/><rect x="4.5" y="8.5" width="4" height="4" rx="0.8" fill="#fff"/><rect x="10" y="8.5" width="4" height="4" rx="0.8" fill="#fff"/><rect x="15.5" y="8.5" width="3.5" height="4" rx="0.8" fill="#fff"/></svg>
+        </div>
+        <h3>Admin</h3>
+        <p>Manage buses, routes, stops and students. View live trips across the fleet.</p>
+        <span class="go">Open Admin →</span>
+      </a>
+
+      <a class="appCard" href="driver.html">
+        <div class="iconWrap">
+          <svg width="30" height="30" viewBox="0 0 24 24" fill="none"><rect x="2" y="7" width="20" height="10" rx="3" fill="#4F46E5"/><circle cx="7" cy="18" r="2.2" fill="#312E81"/><circle cx="17" cy="18" r="2.2" fill="#312E81"/><path d="M17 3l2.5 4h-5z" fill="#F59E0B"/></svg>
+        </div>
+        <h3>Driver</h3>
+        <p>Start your route and share live GPS location automatically while driving.</p>
+        <span class="go">Open Driver App →</span>
+      </a>
+
+      <a class="appCard" href="parent-login.html">
+        <div class="iconWrap">
+          <svg width="30" height="30" viewBox="0 0 24 24" fill="none"><path d="M12 2C7.6 2 4 5.6 4 10c0 6 8 12 8 12s8-6 8-12c0-4.4-3.6-8-8-8z" fill="#4F46E5"/><circle cx="12" cy="10" r="3" fill="#fff"/></svg>
+        </div>
+        <h3>Parent</h3>
+        <p>Log in with your Member ID (MID) and see your child's bus live on a map.</p>
+        <span class="go">Open Parent Portal →</span>
+      </a>
+
+    </div>
+  </main>
+
+  <footer>Shree Swaminarayan Gurukul International School · Transport Department</footer>
+</body>
+</html>

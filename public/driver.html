@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>SSGIS Driver App</title>
+<link rel="stylesheet" href="css/style.css">
+<style>
+  header { padding: 22px 24px; }
+  header .titleRow { justify-content: center; }
+  header .subtitle { text-align: center; }
+  main { max-width: 480px; }
+  .hero { padding: 22px 0 6px; }
+  #tripControls button { flex: 1; }
+  #driverStatus { text-align: center; font-weight: 600; color: var(--indigo-700); }
+  .pill {
+    display: inline-block; background: var(--indigo-50); color: var(--indigo-700);
+    border-radius: 999px; padding: 4px 12px; font-size: 0.78rem; font-weight: 600;
+    margin-bottom: 4px;
+  }
+</style>
+</head>
+<body>
+  <header>
+    <div class="titleRow">
+      <svg width="34" height="34" viewBox="0 0 48 48" fill="none">
+        <rect x="4" y="10" width="40" height="24" rx="6" fill="#fff" fill-opacity="0.15"/>
+        <rect x="7" y="13" width="34" height="14" rx="3" fill="#fff" fill-opacity="0.9"/>
+        <circle cx="14" cy="36" r="4" fill="#fff"/>
+        <circle cx="34" cy="36" r="4" fill="#fff"/>
+        <rect x="10" y="16" width="7" height="7" rx="1.2" fill="#4338CA"/>
+        <rect x="20.5" y="16" width="7" height="7" rx="1.2" fill="#4338CA"/>
+        <rect x="31" y="16" width="6" height="7" rx="1.2" fill="#4338CA"/>
+      </svg>
+      <div>
+        <h1>Driver App</h1>
+        <p class="subtitle">Shree Swaminarayan Gurukul International School</p>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <div class="hero">
+      <svg width="120" height="90" viewBox="0 0 160 120" fill="none">
+        <ellipse cx="80" cy="104" rx="70" ry="8" fill="#E0E7FF"/>
+        <rect x="20" y="40" width="110" height="48" rx="10" fill="#4F46E5"/>
+        <rect x="20" y="40" width="110" height="16" rx="8" fill="#312E81"/>
+        <rect x="30" y="62" width="18" height="16" rx="3" fill="#fff"/>
+        <rect x="54" y="62" width="18" height="16" rx="3" fill="#fff"/>
+        <rect x="78" y="62" width="18" height="16" rx="3" fill="#fff"/>
+        <rect x="102" y="62" width="18" height="16" rx="3" fill="#fff"/>
+        <circle cx="42" cy="92" r="10" fill="#1e1b4b"/>
+        <circle cx="42" cy="92" r="4" fill="#C7CBE8"/>
+        <circle cx="108" cy="92" r="10" fill="#1e1b4b"/>
+        <circle cx="108" cy="92" r="4" fill="#C7CBE8"/>
+        <path d="M130 50 h14 a6 6 0 0 1 6 6 v10 a6 6 0 0 1 -6 6 h-14 z" fill="#312E81"/>
+      </svg>
+    </div>
+
+    <section class="card">
+      <span class="pill">Driver</span>
+      <h2>
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M12 2C7.6 2 4 5.6 4 10c0 6 8 12 8 12s8-6 8-12c0-4.4-3.6-8-8-8z" fill="#4F46E5"/><circle cx="12" cy="10" r="3" fill="#fff"/></svg>
+        Start your route
+      </h2>
+
+      <label>Select your route:</label>
+      <select id="driverRouteSelect"></select>
+
+      <label style="margin-top:10px; display:block;">Driver PIN:</label>
+      <input id="driverPin" type="password" inputmode="numeric" placeholder="Ask the school office for your PIN" autocomplete="off">
+
+      <div id="tripControls">
+        <button id="startBtn">▶ Start Trip</button>
+        <button id="endBtn" disabled>■ End Trip</button>
+      </div>
+
+      <p id="driverStatus">Not on a trip.</p>
+      <p class="error" id="driverError" style="color:#dc2626; font-size:0.85rem; text-align:center; min-height:1.2em;"></p>
+      <p class="hint" style="text-align:center;">Keep this tab open while driving — your phone's GPS streams automatically to parents and the school office.</p>
+
+      <div class="hint" style="text-align:center; margin-top:14px;">
+        No GPS available (e.g. testing on a laptop)? Use the simulator once a trip has started:
+        <br><button id="simulateBtn" disabled style="margin-top:8px;">Send a simulated location ping</button>
+      </div>
+    </section>
+
+    <p class="hint" style="text-align:center;"><a href="index.html" style="color: var(--indigo-600);">← Back to Admin / Parent app</a></p>
+  </main>
+
+<script src="/socket.io/socket.io.js"></script>
+<script>
+const api = (path, opts) => fetch('/api' + path, opts).then(r => r.json());
+
+async function loadRoutes() {
+  const routes = await api('/routes');
+  document.getElementById('driverRouteSelect').innerHTML =
+    routes.map(r => `<option value="${r.id}">${r.route_name} (Bus ${r.bus ? r.bus.bus_no : '?'})</option>`).join('');
+}
+loadRoutes();
+
+let currentTrip = null;
+let watchId = null;
+
+document.getElementById('startBtn').onclick = async () => {
+  document.getElementById('driverError').textContent = '';
+  const route_id = Number(document.getElementById('driverRouteSelect').value);
+  const driver_pin = document.getElementById('driverPin').value.trim();
+
+  const res = await fetch('/api/trips/start', {
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ route_id, driver_pin })
+  });
+  const body = await res.json();
+  if (!res.ok) {
+    document.getElementById('driverError').textContent = body.error || 'Could not start trip.';
+    return;
+  }
+  currentTrip = body;
+  document.getElementById('driverStatus').textContent = `🟢 Trip #${currentTrip.id} active — sharing live location.`;
+  document.getElementById('startBtn').disabled = true;
+  document.getElementById('endBtn').disabled = false;
+  document.getElementById('simulateBtn').disabled = false;
+
+  if (navigator.geolocation) {
+    watchId = navigator.geolocation.watchPosition(async (pos) => {
+      await sendLocation(pos.coords.latitude, pos.coords.longitude, pos.coords.speed);
+    }, (err) => console.warn('GPS error, use the simulator button instead:', err.message),
+       { enableHighAccuracy: true, maximumAge: 5000, timeout: 10000 });
+  }
+};
+
+document.getElementById('endBtn').onclick = async () => {
+  if (!currentTrip) return;
+  await api(`/trips/${currentTrip.id}/end`, { method: 'POST' });
+  if (watchId) navigator.geolocation.clearWatch(watchId);
+  document.getElementById('driverStatus').textContent = 'Trip ended.';
+  document.getElementById('startBtn').disabled = false;
+  document.getElementById('endBtn').disabled = true;
+  document.getElementById('simulateBtn').disabled = true;
+  currentTrip = null;
+};
+
+document.getElementById('simulateBtn').onclick = () => {
+  const lat = 23.0225 + (Math.random() - 0.5) * 0.01;
+  const lng = 72.5714 + (Math.random() - 0.5) * 0.01;
+  sendLocation(lat, lng, 20);
+};
+
+async function sendLocation(lat, lng, speed) {
+  if (!currentTrip) return;
+  await api(`/trips/${currentTrip.id}/location`, {
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ lat, lng, speed })
+  });
+}
+</script>
+</body>
+</html>

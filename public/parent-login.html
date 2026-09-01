@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>SSGIS Parent Login</title>
+<link rel="stylesheet" href="css/style.css">
+<style>
+  body { display: flex; align-items: center; justify-content: center; min-height: 100vh; }
+  .loginCard {
+    background: #fff; border: 1px solid var(--indigo-100); border-radius: 14px;
+    padding: 34px 30px; width: 340px; box-shadow: 0 8px 24px rgba(79,70,229,0.12);
+    text-align: center;
+  }
+  .loginCard h1 { font-size: 1.1rem; color: var(--indigo-900); margin: 14px 0 4px; }
+  .loginCard p.sub { color: #6b7099; font-size: 0.85rem; margin: 0 0 20px; }
+  .loginCard form { flex-direction: column; }
+  .loginCard input { width: 100%; }
+  .loginCard button { width: 100%; margin-top: 4px; }
+  .error { color: #dc2626; font-size: 0.85rem; margin-top: 10px; min-height: 1.2em; }
+  .note { color: var(--indigo-600); font-size: 0.85rem; margin-top: 10px; min-height: 1.2em; }
+  .iconWrap {
+    width: 56px; height: 56px; border-radius: 50%; background: var(--indigo-50);
+    display: flex; align-items: center; justify-content: center; margin: 0 auto;
+  }
+  .backLink { display: block; margin-top: 16px; color: var(--indigo-600); font-size: 0.82rem; text-decoration: none; }
+</style>
+</head>
+<body>
+  <div class="loginCard">
+    <div class="iconWrap">
+      <svg width="26" height="26" viewBox="0 0 24 24" fill="none"><path d="M12 2C7.6 2 4 5.6 4 10c0 6 8 12 8 12s8-6 8-12c0-4.4-3.6-8-8-8z" fill="#4F46E5"/><circle cx="12" cy="10" r="3" fill="#fff"/></svg>
+    </div>
+    <h1>Parent Login</h1>
+    <p class="sub">Shree Swaminarayan Gurukul International School</p>
+
+    <div id="midStep">
+      <form id="midForm">
+        <input name="member_id" placeholder="Member ID (MID)" required autofocus>
+        <button type="submit">Send OTP</button>
+      </form>
+    </div>
+
+    <div id="otpStep" style="display:none;">
+      <form id="otpForm">
+        <input name="otp" placeholder="6-digit OTP" inputmode="numeric" maxlength="6" required autofocus>
+        <button type="submit">Verify &amp; Log in</button>
+      </form>
+      <p class="hint">OTP sent to <span id="maskedPhone"></span></p>
+    </div>
+
+    <p class="error" id="errorMsg"></p>
+    <p class="note" id="devNote"></p>
+    <a class="backLink" href="index.html">← Bus Tracker Home</a>
+  </div>
+
+<script>
+let currentMemberId = null;
+
+document.getElementById('midForm').onsubmit = async (e) => {
+  e.preventDefault();
+  document.getElementById('errorMsg').textContent = '';
+  document.getElementById('devNote').textContent = '';
+  const data = Object.fromEntries(new FormData(e.target));
+  currentMemberId = data.member_id;
+
+  const res = await fetch('/api/parent/request-otp', {
+    method: 'POST', headers: { 'Content-Type': 'application/json' }, credentials: 'include',
+    body: JSON.stringify({ member_id: currentMemberId })
+  });
+  const body = await res.json();
+  if (!res.ok) {
+    document.getElementById('errorMsg').textContent = body.error || 'Could not send OTP.';
+    return;
+  }
+  document.getElementById('midStep').style.display = 'none';
+  document.getElementById('otpStep').style.display = 'block';
+  document.getElementById('maskedPhone').textContent = body.masked_phone || 'your registered number';
+  if (body.dev_otp) document.getElementById('devNote').textContent = `Dev mode — your OTP is ${body.dev_otp}`;
+};
+
+document.getElementById('otpForm').onsubmit = async (e) => {
+  e.preventDefault();
+  document.getElementById('errorMsg').textContent = '';
+  const data = Object.fromEntries(new FormData(e.target));
+
+  const res = await fetch('/api/parent/verify-otp', {
+    method: 'POST', headers: { 'Content-Type': 'application/json' }, credentials: 'include',
+    body: JSON.stringify({ member_id: currentMemberId, otp: data.otp })
+  });
+  if (res.ok) {
+    window.location.href = 'parent.html';
+  } else {
+    const body = await res.json().catch(() => ({}));
+    document.getElementById('errorMsg').textContent = body.error || 'Invalid OTP.';
+  }
+};
+</script>
+</body>
+</html>

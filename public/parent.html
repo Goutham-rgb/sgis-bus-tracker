@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>SSGIS Parent — Where's the bus?</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<link rel="stylesheet" href="css/style.css">
+<style>
+  header .titleRow { justify-content: flex-start; }
+  #map { height: 380px; border-radius: 10px; margin-top: 14px; }
+
+  .backLink {
+    display: inline-flex; align-items: center; gap: 6px;
+    color: var(--indigo-600); text-decoration: none; font-size: 0.85rem; font-weight: 600;
+  }
+  .backLink:hover { color: var(--indigo-800); }
+  .pill {
+    display: inline-block; background: var(--indigo-50); color: var(--indigo-700);
+    border-radius: 999px; padding: 4px 12px; font-size: 0.78rem; font-weight: 600;
+    margin-bottom: 10px;
+  }
+  .topRow { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 4px; }
+  #logoutBtn { background: #fff; color: var(--indigo-600); border: 1px solid var(--indigo-100); }
+  #logoutBtn:hover { background: var(--indigo-50); }
+
+  .hero { flex-direction: column; padding: 8px 0 4px; }
+  .hero h2 { margin: 6px 0 2px; color: var(--indigo-900); font-size: 1.25rem; }
+  .hero p { margin: 0; color: #6b7099; font-size: 0.9rem; }
+
+  .studentCard {
+    display: flex; gap: 14px; align-items: flex-start;
+    padding: 14px 0; border-bottom: 1px solid var(--indigo-50);
+  }
+  .studentCard:last-child { border-bottom: none; }
+  .avatar {
+    width: 44px; height: 44px; border-radius: 50%; background: var(--indigo-50);
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+  }
+  .studentInfo { flex: 1; }
+  .studentInfo .name { font-weight: 700; color: var(--indigo-900); font-size: 0.98rem; }
+  .studentInfo .meta { font-size: 0.85rem; color: #6b7099; margin: 3px 0; display: flex; align-items: center; gap: 5px; flex-wrap: wrap; }
+  .statusBadge { display: inline-flex; align-items: center; gap: 5px; font-size: 0.82rem; font-weight: 600; margin-top: 4px; }
+  .statusBadge.live { color: #059669; }
+  .statusBadge.idle { color: #9aa0c8; }
+  .dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
+  .dot.live { background: #10b981; box-shadow: 0 0 0 3px #d1fae5; }
+  .dot.idle { background: #c7cbe8; }
+</style>
+</head>
+<body>
+  <header>
+    <div class="titleRow">
+      <svg width="34" height="34" viewBox="0 0 48 48" fill="none">
+        <rect x="4" y="10" width="40" height="24" rx="6" fill="#fff" fill-opacity="0.15"/>
+        <rect x="7" y="13" width="34" height="14" rx="3" fill="#fff" fill-opacity="0.9"/>
+        <circle cx="14" cy="36" r="4" fill="#fff"/>
+        <circle cx="34" cy="36" r="4" fill="#fff"/>
+        <rect x="10" y="16" width="7" height="7" rx="1.2" fill="#4338CA"/>
+        <rect x="20.5" y="16" width="7" height="7" rx="1.2" fill="#4338CA"/>
+        <rect x="31" y="16" width="6" height="7" rx="1.2" fill="#4338CA"/>
+      </svg>
+      <div>
+        <h1>Parent Portal</h1>
+        <p class="subtitle">Shree Swaminarayan Gurukul International School</p>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <div class="topRow">
+      <div>
+        <a class="backLink" href="index.html">← Bus Tracker Home</a>
+        <br><span class="pill">Parent</span>
+      </div>
+      <button id="logoutBtn">Log out</button>
+    </div>
+
+    <section class="card">
+      <div class="hero">
+        <svg width="220" height="120" viewBox="0 0 260 140" fill="none">
+          <ellipse cx="130" cy="128" rx="120" ry="9" fill="#EEF2FF"/>
+          <rect x="0" y="108" width="260" height="18" fill="#E0E7FF"/>
+          <rect x="20" y="115" width="18" height="4" rx="2" fill="#C7CBE8"/>
+          <rect x="60" y="115" width="18" height="4" rx="2" fill="#C7CBE8"/>
+          <rect x="100" y="115" width="18" height="4" rx="2" fill="#C7CBE8"/>
+          <rect x="130" y="52" width="100" height="46" rx="10" fill="#4F46E5"/>
+          <rect x="130" y="52" width="100" height="16" rx="8" fill="#312E81"/>
+          <rect x="140" y="74" width="16" height="14" rx="3" fill="#fff"/>
+          <rect x="162" y="74" width="16" height="14" rx="3" fill="#fff"/>
+          <rect x="184" y="74" width="16" height="14" rx="3" fill="#fff"/>
+          <rect x="206" y="74" width="14" height="14" rx="3" fill="#fff"/>
+          <circle cx="148" cy="102" r="9" fill="#1e1b4b"/>
+          <circle cx="148" cy="102" r="3.5" fill="#C7CBE8"/>
+          <circle cx="210" cy="102" r="9" fill="#1e1b4b"/>
+          <circle cx="210" cy="102" r="3.5" fill="#C7CBE8"/>
+          <circle cx="55" cy="70" r="10" fill="#F5B7A0"/>
+          <rect x="44" y="80" width="22" height="30" rx="10" fill="#4338CA"/>
+          <circle cx="80" cy="82" r="7" fill="#F5B7A0"/>
+          <rect x="72" y="89" width="16" height="20" rx="8" fill="#6366F1"/>
+          <path d="M64 92 q6 -4 11 0" stroke="#312E81" stroke-width="2.4" stroke-linecap="round" fill="none"/>
+          <path d="M180 20c-6 0-11 5-11 11 0 8 11 19 11 19s11-11 11-19c0-6-5-11-11-11z" fill="#F59E0B"/>
+          <circle cx="180" cy="31" r="4" fill="#fff"/>
+        </svg>
+        <h2>Where's the bus?</h2>
+        <p>Track your child's school bus live, right from your phone.</p>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M12 3L2 8l10 5 8-4v6h1.5V8L12 3z" fill="#4F46E5"/><path d="M6 12.5v4c0 1.4 2.7 3 6 3s6-1.6 6-3v-4l-6 3-6-3z" fill="#312E81"/></svg>
+        Your children
+      </h2>
+      <div id="parentResult"></div>
+      <div id="map"></div>
+    </section>
+  </main>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="/socket.io/socket.io.js"></script>
+<script>
+const socket = io();
+let map, busMarker, stopMarker;
+
+function ensureMap(centerLat, centerLng) {
+  if (!map) {
+    map = L.map('map').setView([centerLat, centerLng], 14);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '&copy; OpenStreetMap contributors'
+    }).addTo(map);
+  }
+  setTimeout(() => map.invalidateSize(), 50);
+}
+
+function busAvatarSvg() {
+  return `<svg width="24" height="24" viewBox="0 0 24 24" fill="none"><rect x="2" y="6" width="20" height="12" rx="3" fill="#4F46E5"/><circle cx="7" cy="19" r="2.2" fill="#312E81"/><circle cx="17" cy="19" r="2.2" fill="#312E81"/><rect x="4.5" y="8.5" width="4" height="4" rx="0.8" fill="#fff"/><rect x="10" y="8.5" width="4" height="4" rx="0.8" fill="#fff"/><rect x="15.5" y="8.5" width="3.5" height="4" rx="0.8" fill="#fff"/></svg>`;
+}
+function pinSvg() {
+  return `<svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M12 2C7.6 2 4 5.6 4 10c0 6 8 12 8 12s8-6 8-12c0-4.4-3.6-8-8-8z" fill="#8890C4"/><circle cx="12" cy="10" r="3" fill="#fff"/></svg>`;
+}
+
+async function loadMe() {
+  const res = await fetch('/api/parent/me', { credentials: 'include' });
+  if (!res.ok) {
+    window.location.href = 'parent-login.html';
+    return;
+  }
+  const records = await res.json();
+  renderResults(records);
+}
+
+function renderResults(records) {
+  document.getElementById('parentResult').innerHTML = records.map(rec => {
+    const live = !!rec.activeTrip;
+    return `<div class="studentCard">
+      <div class="avatar">${busAvatarSvg()}</div>
+      <div class="studentInfo">
+        <div class="name">${rec.student.name}</div>
+        <div class="meta">Class ${rec.student.class || ''}-${rec.student.section || ''} · Bus ${rec.bus ? rec.bus.bus_no : 'Not assigned'}</div>
+        <div class="meta">${pinSvg()} Stop: ${rec.stop ? rec.stop.stop_name : 'Not assigned'} ${rec.stop ? '(' + rec.stop.pickup_time + ')' : ''}</div>
+        <div class="statusBadge ${live ? 'live' : 'idle'}"><span class="dot ${live ? 'live' : 'idle'}"></span>${live ? 'Bus is on the road' : 'No active trip right now'}</div>
+      </div>
+    </div>`;
+  }).join('');
+
+  const active = records.find(r => r.activeTrip);
+  const stop = records[0] ? records[0].stop : null;
+  ensureMap(stop ? stop.lat : 23.0225, stop ? stop.lng : 72.5714);
+
+  if (stop) {
+    if (stopMarker) map.removeLayer(stopMarker);
+    stopMarker = L.marker([stop.lat, stop.lng], { title: 'Your stop' })
+      .bindPopup(`Your stop: ${stop.stop_name}`).addTo(map);
+  }
+
+  if (active) socket.emit('subscribe-trip', active.activeTrip.id);
+}
+
+socket.on('location-update', (point) => {
+  ensureMap(point.lat, point.lng);
+  if (busMarker) map.removeLayer(busMarker);
+  busMarker = L.marker([point.lat, point.lng], {
+    title: 'Bus location',
+    icon: L.divIcon({ className: 'bus-icon', html: '🚌', iconSize: [24, 24] })
+  }).addTo(map);
+  map.panTo([point.lat, point.lng]);
+});
+
+socket.on('trip-ended', () => {
+  document.getElementById('parentResult').insertAdjacentHTML('beforeend', '<p class="hint">Trip has ended.</p>');
+});
+
+document.getElementById('logoutBtn').onclick = async () => {
+  await fetch('/api/parent/logout', { method: 'POST', credentials: 'include' });
+  window.location.href = 'parent-login.html';
+};
+
+loadMe();
+</script>
+</body>
+</html>

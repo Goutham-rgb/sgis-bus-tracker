@@ -1,0 +1,21 @@
+{
+  "name": "ssgis-bus-tracker",
+  "version": "2.0.0",
+  "description": "Live school bus tracking system for Shree Swaminarayan Gurukul International School",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "db:schema": "psql \"$DATABASE_URL\" -f data/schema.sql",
+    "db:seed": "node data/migrate-seed.js",
+    "create-admin": "node scripts/create-admin.js"
+  },
+  "dependencies": {
+    "express": "^4.19.2",
+    "socket.io": "^4.7.5",
+    "cors": "^2.8.5",
+    "pg": "^8.11.5",
+    "dotenv": "^16.4.5",
+    "express-session": "^1.18.0",
+    "bcryptjs": "^2.4.3"
+  }
+}
