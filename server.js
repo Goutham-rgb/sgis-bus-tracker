@@ -1,4 +1,5 @@
 require('dotenv').config();
+const path = require('path');
 
 const express = require('express');
 const cors = require('cors');
@@ -301,8 +302,25 @@ io.on('connection', (socket) => {
     socket.join(`trip-${tripId}`);
   });
 });
+// Routing for separate views
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
+
+app.get('/driver', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'driver.html'));
+});
+
+app.get('/admin', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'admin.html'));
+});
+
+app.get('/parent', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'parent.html'));
+});
 
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => {
-  console.log(`SSGIS Bus Tracker running at http://localhost:${PORT}`);
+    console.log(`SSGIS Bus Tracker running at http://localhost:${PORT}`);
 });
+

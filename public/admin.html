@@ -1,213 +1,85 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<title>SSGIS Admin — Bus Tracker</title>
-<link rel="stylesheet" href="css/style.css">
-<style>
-  header .titleRow { justify-content: flex-start; }
-  .backLink {
-    display: inline-flex; align-items: center; gap: 6px;
-    color: var(--indigo-600); text-decoration: none; font-size: 0.85rem; font-weight: 600;
-    margin-bottom: 16px;
-  }
-  .backLink:hover { color: var(--indigo-800); }
-  .pill {
-    display: inline-block; background: var(--indigo-50); color: var(--indigo-700);
-    border-radius: 999px; padding: 4px 12px; font-size: 0.78rem; font-weight: 600;
-    margin-bottom: 10px;
-  }
-  .topRow { display: flex; justify-content: space-between; align-items: center; }
-  #logoutBtn { background: #fff; color: var(--indigo-600); border: 1px solid var(--indigo-100); }
-  #logoutBtn:hover { background: var(--indigo-50); }
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SGIS Admin Dashboard</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 </head>
-<body>
-  <header>
-    <div class="titleRow">
-      <svg width="34" height="34" viewBox="0 0 48 48" fill="none">
-        <rect x="4" y="10" width="40" height="24" rx="6" fill="#fff" fill-opacity="0.15"/>
-        <rect x="7" y="13" width="34" height="14" rx="3" fill="#fff" fill-opacity="0.9"/>
-        <circle cx="14" cy="36" r="4" fill="#fff"/>
-        <circle cx="34" cy="36" r="4" fill="#fff"/>
-        <rect x="10" y="16" width="7" height="7" rx="1.2" fill="#4338CA"/>
-        <rect x="20.5" y="16" width="7" height="7" rx="1.2" fill="#4338CA"/>
-        <rect x="31" y="16" width="6" height="7" rx="1.2" fill="#4338CA"/>
-      </svg>
-      <div>
-        <h1>Shree Swaminarayan Gurukul International School</h1>
-        <p class="subtitle">Transport Admin Dashboard</p>
-      </div>
-    </div>
-  </header>
+<body class="bg-slate-50 min-h-screen text-slate-800">
 
-  <main>
-    <div class="topRow">
-      <div>
-        <a class="backLink" href="index.html">← Bus Tracker Home</a>
-        <br><span class="pill">Admin</span>
-      </div>
-      <button id="logoutBtn">Log out</button>
-    </div>
+    <!-- Top Navigation Header -->
+    <header class="bg-indigo-900 text-white shadow-lg">
+        <div class="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
+            <div>
+                <h1 class="text-2xl font-bold tracking-tight">Shree Swaminarayan Gurukul International School</h1>
+                <p class="text-indigo-200 text-sm">Transport Admin Dashboard</p>
+            </div>
+            <div class="flex items-center gap-4">
+                <a href="/" class="text-sm bg-indigo-800 hover:bg-indigo-700 px-3 py-2 rounded-lg transition">← Bus Tracker Home</a>
+                <a href="/logout" class="bg-rose-600 hover:bg-rose-500 text-white text-sm font-semibold px-4 py-2 rounded-lg shadow transition">Log out</a>
+            </div>
+        </div>
+    </header>
 
-    <section class="card">
-      <h2>
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><rect x="2" y="6" width="20" height="12" rx="3" fill="#4F46E5"/><circle cx="7" cy="19" r="2.2" fill="#312E81"/><circle cx="17" cy="19" r="2.2" fill="#312E81"/><rect x="4.5" y="8.5" width="4" height="4" rx="0.8" fill="#fff"/><rect x="10" y="8.5" width="4" height="4" rx="0.8" fill="#fff"/><rect x="15.5" y="8.5" width="3.5" height="4" rx="0.8" fill="#fff"/></svg>
-        Buses
-      </h2>
-      <table id="busTable"><thead><tr><th>Bus No</th><th>Registration</th><th>Driver</th><th>Phone</th><th>Capacity</th></tr></thead><tbody></tbody></table>
-      <details>
-        <summary>+ Add bus</summary>
-        <form id="busForm">
-          <input name="bus_no" placeholder="Bus No (e.g. SSGIS-03)" required>
-          <input name="registration_no" placeholder="Registration No" required>
-          <input name="driver_name" placeholder="Driver name" required>
-          <input name="driver_phone" placeholder="Driver phone" required>
-          <input name="capacity" placeholder="Capacity" type="number" required>
-          <button type="submit">Add Bus</button>
-        </form>
-      </details>
-    </section>
+    <!-- Main Dashboard Container -->
+    <main class="max-w-7xl mx-auto px-6 py-8 space-y-8">
 
-    <section class="card">
-      <h2>
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M12 2C7.6 2 4 5.6 4 10c0 6 8 12 8 12s8-6 8-12c0-4.4-3.6-8-8-8z" fill="#4F46E5"/><circle cx="12" cy="10" r="3" fill="#fff"/></svg>
-        Routes &amp; Stops
-      </h2>
-      <div id="routesList"></div>
-      <details>
-        <summary>+ Add route</summary>
-        <form id="routeForm">
-          <input name="route_name" placeholder="Route name" required>
-          <select name="bus_id" id="busSelect" required></select>
-          <button type="submit">Add Route</button>
-        </form>
-      </details>
-      <details>
-        <summary>+ Add stop to a route</summary>
-        <form id="stopForm">
-          <select name="route_id" id="routeSelect" required></select>
-          <input name="stop_name" placeholder="Stop name" required>
-          <input name="lat" placeholder="Latitude" type="number" step="any" required>
-          <input name="lng" placeholder="Longitude" type="number" step="any" required>
-          <input name="sequence" placeholder="Order (1,2,3...)" type="number" required>
-          <input name="pickup_time" placeholder="Pickup time (HH:MM)" required>
-          <button type="submit">Add Stop</button>
-        </form>
-      </details>
-    </section>
+        <!-- Buses Section -->
+        <section class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-lg font-semibold text-slate-900 flex items-center gap-2">🚌 Buses</h2>
+                <button class="bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-medium px-4 py-2 rounded-xl transition shadow-sm">+ Add bus</button>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="border-b border-slate-100 text-slate-400 text-xs uppercase tracking-wider">
+                            <th class="py-3 px-4 font-semibold">Bus No</th>
+                            <th class="py-3 px-4 font-semibold">Registration</th>
+                            <th class="py-3 px-4 font-semibold">Driver</th>
+                            <th class="py-3 px-4 font-semibold">Phone</th>
+                            <th class="py-3 px-4 font-semibold">Capacity</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-100 text-sm text-slate-600"></tbody>
+                </table>
+            </div>
+        </section>
 
-    <section class="card">
-      <h2>
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M12 3L2 8l10 5 8-4v6h1.5V8L12 3z" fill="#4F46E5"/><path d="M6 12.5v4c0 1.4 2.7 3 6 3s6-1.6 6-3v-4l-6 3-6-3z" fill="#312E81"/></svg>
-        Students
-      </h2>
-      <table id="studentTable"><thead><tr><th>Member ID</th><th>Name</th><th>Class</th><th>Route</th><th>Stop</th><th>Parent Phone</th></tr></thead><tbody></tbody></table>
-      <details>
-        <summary>+ Add student</summary>
-        <form id="studentForm">
-          <input name="member_id" placeholder="Member ID (MID) — e.g. SSGIS-0004" required>
-          <input name="name" placeholder="Student name" required>
-          <input name="class" placeholder="Class">
-          <input name="section" placeholder="Section">
-          <input name="parent_phone" placeholder="Parent phone" required>
-          <select name="route_id" id="studentRouteSelect" required></select>
-          <select name="stop_id" id="studentStopSelect" required></select>
-          <button type="submit">Add Student</button>
-        </form>
-      </details>
-    </section>
+        <!-- Admin Fleet Live Map Section -->
+        <section class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-lg font-semibold text-slate-900 flex items-center gap-2">🟢 Fleet Live Tracking</h2>
+                <span class="text-xs bg-indigo-100 text-indigo-700 font-medium px-3 py-1 rounded-full">All Buses Active</span>
+            </div>
+            <div id="admin-map" class="w-full h-96 rounded-xl border border-slate-200 z-10"></div>
+        </section>
 
-    <section class="card">
-      <h2>
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="#4F46E5" stroke-width="2"/><circle cx="12" cy="12" r="3" fill="#4F46E5"/></svg>
-        Live Trips
-      </h2>
-      <div id="activeTrips"></div>
-    </section>
-  </main>
+    </main>
 
-<script>
-const api = (path, opts) => fetch('/api' + path, { ...opts, credentials: 'include' }).then(r => r.json());
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script>
+        const adminMap = L.map('admin-map').setView([17.3850, 78.4867], 13);
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', { maxZoom: 19 }).addTo(adminMap);
 
-document.getElementById('logoutBtn').onclick = async () => {
-  await fetch('/api/admin/logout', { method: 'POST', credentials: 'include' });
-  window.location.href = 'login.html';
-};
+        const buses = [
+            { id: 'Bus #101', lat: 17.3850, lng: 78.4867, driver: 'Ramesh Kumar' },
+            { id: 'Bus #102', lat: 17.3950, lng: 78.4767, driver: 'Suresh Patel' }
+        ];
 
-async function loadAdmin() {
-  const [buses, routes, students, trips] = await Promise.all([
-    api('/buses'), api('/routes'), api('/students'), api('/trips/active')
-  ]);
-
-  document.querySelector('#busTable tbody').innerHTML = buses.map(b =>
-    `<tr><td>${b.bus_no}</td><td>${b.registration_no}</td><td>${b.driver_name}</td><td>${b.driver_phone}</td><td>${b.capacity}</td></tr>`
-  ).join('');
-
-  document.getElementById('busSelect').innerHTML = buses.map(b => `<option value="${b.id}">${b.bus_no}</option>`).join('');
-
-  document.getElementById('routesList').innerHTML = routes.map(r => `
-    <div class="route-block">
-      <strong>${r.route_name}</strong> — Bus ${r.bus ? r.bus.bus_no : '?'}
-      <ol>${r.stops.map(s => `<li>${s.stop_name} (${s.pickup_time})</li>`).join('')}</ol>
-    </div>`).join('');
-
-  const routeOptions = routes.map(r => `<option value="${r.id}">${r.route_name}</option>`).join('');
-  document.getElementById('routeSelect').innerHTML = routeOptions;
-  document.getElementById('studentRouteSelect').innerHTML = routeOptions;
-
-  function refreshStopSelect() {
-    const routeId = Number(document.getElementById('studentRouteSelect').value);
-    const route = routes.find(r => r.id === routeId);
-    document.getElementById('studentStopSelect').innerHTML =
-      (route ? route.stops : []).map(s => `<option value="${s.id}">${s.stop_name}</option>`).join('');
-  }
-  document.getElementById('studentRouteSelect').onchange = refreshStopSelect;
-  refreshStopSelect();
-
-  document.querySelector('#studentTable tbody').innerHTML = students.map(s => {
-    const route = routes.find(r => r.id === s.route_id);
-    const stop = route ? route.stops.find(st => st.id === s.stop_id) : null;
-    return `<tr><td>${s.member_id}</td><td>${s.name}</td><td>${s.class || ''}-${s.section || ''}</td><td>${route ? route.route_name : ''}</td><td>${stop ? stop.stop_name : ''}</td><td>${s.parent_phone}</td></tr>`;
-  }).join('');
-
-  document.getElementById('activeTrips').innerHTML = trips.length
-    ? trips.map(t => `<div class="trip-live">🟢 Route ${t.route_id} — Bus ${t.bus_id} — started ${new Date(t.start_time).toLocaleTimeString()}</div>`).join('')
-    : '<p class="hint">No trips currently running.</p>';
-}
-
-document.getElementById('busForm').onsubmit = async (e) => {
-  e.preventDefault();
-  const data = Object.fromEntries(new FormData(e.target));
-  data.capacity = Number(data.capacity);
-  await api('/buses', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) });
-  e.target.reset(); loadAdmin();
-};
-document.getElementById('routeForm').onsubmit = async (e) => {
-  e.preventDefault();
-  const data = Object.fromEntries(new FormData(e.target));
-  data.bus_id = Number(data.bus_id);
-  await api('/routes', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) });
-  e.target.reset(); loadAdmin();
-};
-document.getElementById('stopForm').onsubmit = async (e) => {
-  e.preventDefault();
-  const data = Object.fromEntries(new FormData(e.target));
-  data.route_id = Number(data.route_id);
-  data.lat = Number(data.lat); data.lng = Number(data.lng); data.sequence = Number(data.sequence);
-  await api('/stops', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) });
-  e.target.reset(); loadAdmin();
-};
-document.getElementById('studentForm').onsubmit = async (e) => {
-  e.preventDefault();
-  const data = Object.fromEntries(new FormData(e.target));
-  data.route_id = Number(data.route_id); data.stop_id = Number(data.stop_id);
-  await api('/students', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) });
-  e.target.reset(); loadAdmin();
-};
-
-loadAdmin();
-setInterval(loadAdmin, 5000);
-</script>
+        buses.forEach(bus => {
+            const icon = L.divIcon({
+                html: '<div class="bg-indigo-600 text-white p-2 rounded-full shadow-lg flex items-center justify-center text-xs">🚌</div>',
+                className: 'custom-bus-marker', iconSize: [36, 36], iconAnchor: [18, 18]
+            });
+            L.marker([bus.lat, bus.lng], { icon }).addTo(adminMap)
+              .bindPopup(`<b>${bus.id}</b><br>Driver: ${bus.driver}<br>Status: On Route`);
+        });
+    </script>
 </body>
 </html>
